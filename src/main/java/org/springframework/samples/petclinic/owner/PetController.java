@@ -15,9 +15,12 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import java.io.IOException;
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Collection;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.util.StringUtils;
@@ -42,6 +45,9 @@ import jakarta.validation.Valid;
 class PetController {
 
 	private static final String VIEWS_PETS_CREATE_OR_UPDATE_FORM = "pets/createOrUpdatePetForm";
+
+	@Autowired
+	private ImageFetchingSvc pexelsSvc;
 
 	private final OwnerRepository owners;
 
@@ -94,7 +100,7 @@ class PetController {
 	}
 
 	@PostMapping("/pets/new")
-	public String processCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model) {
+	public String processCreationForm(Owner owner, @Valid Pet pet, BindingResult result, ModelMap model) throws IOException {
 		if (StringUtils.hasText(pet.getName()) && pet.isNew() && owner.getPet(pet.getName(), true) != null) {
 			result.rejectValue("name", "duplicate", "already exists");
 		}
@@ -104,6 +110,10 @@ class PetController {
 			result.rejectValue("birthDate", "typeMismatch.birthDate");
 		}
 
+		System.out.printf("fetching image of pet type: %s\n", pet.getType());
+		var imageUrl = pexelsSvc.findImageAndDownload(pet.getType().getName(), owner.getId().toString());
+		pet.setImagePath(imageUrl.toString());
+		System.out.printf("image id is %s\n", pet.getImagePath());
 		owner.addPet(pet);
 		if (result.hasErrors()) {
 			model.put("pet", pet);
@@ -148,5 +158,4 @@ class PetController {
 		this.owners.save(owner);
 		return "redirect:/owners/{ownerId}";
 	}
-
 }

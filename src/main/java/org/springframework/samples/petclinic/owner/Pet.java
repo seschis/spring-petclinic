@@ -15,6 +15,7 @@
  */
 package org.springframework.samples.petclinic.owner;
 
+import java.nio.file.Path;
 import java.time.LocalDate;
 import java.util.Collection;
 import java.util.LinkedHashSet;
@@ -57,6 +58,9 @@ public class Pet extends NamedEntity {
 	@OrderBy("visit_date ASC")
 	private Set<Visit> visits = new LinkedHashSet<>();
 
+	@JoinColumn(name = "image_path")
+	private String imagePath;
+
 	public void setBirthDate(LocalDate birthDate) {
 		this.birthDate = birthDate;
 	}
@@ -81,4 +85,6 @@ public class Pet extends NamedEntity {
 		getVisits().add(visit);
 	}
 
+	public String getImagePath() { return this.imagePath; }
+	public void setImagePath(String imagePath) { this.imagePath = imagePath; }
 }
