@@ -34,6 +34,7 @@ import org.springframework.boot.context.event.ApplicationPreparedEvent;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.ApplicationListener;
 import org.springframework.core.env.ConfigurableEnvironment;
@@ -46,12 +47,19 @@ import org.springframework.samples.petclinic.vet.VetRepository;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.DockerClientFactory;
+import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.junit.jupiter.Container;
+import org.testcontainers.junit.jupiter.Testcontainers;
 
-@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, properties = { "spring.docker.compose.skip.in-tests=false", //
-		"spring.docker.compose.profiles.active=postgres" })
+@SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("postgres")
+@Testcontainers(disabledWithoutDocker = true)
 @DisabledInNativeImage
 public class PostgresIntegrationTests {
+
+	@ServiceConnection
+	@Container
+	static PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:15-alpine");
 
 	@LocalServerPort
 	int port;
