@@ -1,6 +1,7 @@
 package org.springframework.samples.petclinic.customer;
 
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,6 +13,10 @@ import org.springframework.web.bind.WebDataBinder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.sql.DataSource;
+import java.sql.Connection;
+import java.sql.SQLException;
+import java.sql.Statement;
 import java.util.List;
 import java.util.Map;
 
@@ -22,8 +27,11 @@ public class CustomerController {
 
 	private final CustomerRepository customers;
 
-	public CustomerController(CustomerRepository repository) {
+	private final DataSource dataSource;
+
+	public CustomerController(CustomerRepository repository, @Qualifier("piiDataSource") DataSource dataSource) {
 		this.customers = repository;
+		this.dataSource = dataSource;
 	}
 
 	@InitBinder
@@ -120,7 +128,7 @@ public class CustomerController {
 	}
 
 	/**
-	 * Custom handler for displaying an customer.
+	 * Custom handler for displaying a customer.
 	 * @param customerId the ID of the customer to display
 	 * @return a ModelMap with the model attributes for the view
 	 */
@@ -130,5 +138,18 @@ public class CustomerController {
 		Customer customer = this.customers.findById(customerId);
 		mav.addObject(customer);
 		return mav;
+	}
+
+	/**
+	 * Extra Contrast added endpoint to show sql injection vulnerability.
+	 * @param customerId The id to delete.
+	 * @throws SQLException if sql execute fails
+	 */
+	@DeleteMapping("/customers/{customerId}")
+	public String deleteCustomer(@PathVariable("customerId") String customerId) throws SQLException {
+		try (Connection connection = dataSource.getConnection(); Statement statement = connection.createStatement()) {
+			statement.execute("DELETE FROM customers WHERE id = " + customerId);
+		}
+		return "welcome";
 	}
 }
