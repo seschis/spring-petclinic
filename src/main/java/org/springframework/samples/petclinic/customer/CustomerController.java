@@ -1,0 +1,134 @@
+package org.springframework.samples.petclinic.customer;
+
+import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.samples.petclinic.owner.Owner;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import java.util.List;
+import java.util.Map;
+
+@Controller
+public class CustomerController {
+
+	private static final String VIEWS_CUSTOMER_CREATE_OR_UPDATE_FORM = "customers/createOrUpdateCustomerForm";
+
+	private final CustomerRepository customers;
+
+	public CustomerController(CustomerRepository repository) {
+		this.customers = repository;
+	}
+
+	@InitBinder
+	public void setAllowedFields(WebDataBinder dataBinder) {
+		dataBinder.setDisallowedFields("id");
+	}
+
+	@ModelAttribute("customer")
+	public Customer findCustomer(@PathVariable(name = "customerId", required = false) Integer customerId) {
+		return customerId == null ? new Customer() : this.customers.findById(customerId);
+	}
+
+	@GetMapping("/customers/new")
+	public String initCreationForm(Map<String, Object> model) {
+		Customer customer = new Customer();
+		model.put("customer", customer);
+		return VIEWS_CUSTOMER_CREATE_OR_UPDATE_FORM;
+	}
+
+	@PostMapping("/customers/new")
+	public String processCreationForm(@Valid Customer customer, BindingResult result) {
+		if (result.hasErrors()) {
+			return VIEWS_CUSTOMER_CREATE_OR_UPDATE_FORM;
+		}
+
+		this.customers.save(customer);
+		return "redirect:/customers/" + customer.getId();
+	}
+
+	@GetMapping("/customers/find")
+	public String initFindForm() {
+		return "customers/findCustomers";
+	}
+
+	@GetMapping("/customers")
+	public String processFindForm(@RequestParam(defaultValue = "1") int page, Customer customer, BindingResult result,
+								  Model model) {
+		// allow parameterless GET request for /customers to return all records
+		if (customer.getLastName() == null) {
+			customer.setLastName(""); // empty string signifies broadest possible search
+		}
+
+		// find customers by last name
+		Page<Customer> customersResults = findPaginatedForCustomersLastName(page, customer.getLastName());
+		if (customersResults.isEmpty()) {
+			// no customers found
+			result.rejectValue("lastName", "notFound", "not found");
+			return "customers/findCustomers";
+		}
+
+		if (customersResults.getTotalElements() == 1) {
+			// 1 customer found
+			customer = customersResults.iterator().next();
+			return "redirect:/customers/" + customer.getId();
+		}
+
+		// multiple customers found
+		return addPaginationModel(page, model, customersResults);
+	}
+
+	private String addPaginationModel(int page, Model model, Page<Customer> paginated) {
+		List<Customer> listCustomers = paginated.getContent();
+		model.addAttribute("currentPage", page);
+		model.addAttribute("totalPages", paginated.getTotalPages());
+		model.addAttribute("totalItems", paginated.getTotalElements());
+		model.addAttribute("listCustomers", listCustomers);
+		return "customers/customersList";
+	}
+
+	private Page<Customer> findPaginatedForCustomersLastName(int page, String lastname) {
+		int pageSize = 5;
+		Pageable pageable = PageRequest.of(page - 1, pageSize);
+		return customers.findByLastName(lastname, pageable);
+	}
+
+
+	@GetMapping("/customers/{customerId}/edit")
+	public String initUpdateCustomerForm(@PathVariable("customerId") int customerId, Model model) {
+		Customer customer = this.customers.findById(customerId);
+		model.addAttribute(customer);
+		return VIEWS_CUSTOMER_CREATE_OR_UPDATE_FORM;
+	}
+
+	@PostMapping("/customers/{customerId}/edit")
+	public String processUpdateCustomerForm(@Valid Customer customer, BindingResult result,
+										 @PathVariable("customerId") int customerId) {
+		if (result.hasErrors()) {
+			return VIEWS_CUSTOMER_CREATE_OR_UPDATE_FORM;
+		}
+
+		customer.setId(customerId);
+		this.customers.save(customer);
+		return "redirect:/customers/{customerId}";
+	}
+
+	/**
+	 * Custom handler for displaying an customer.
+	 * @param customerId the ID of the customer to display
+	 * @return a ModelMap with the model attributes for the view
+	 */
+	@GetMapping("/customers/{customerId}")
+	public ModelAndView showCustomer(@PathVariable("customerId") int customerId) {
+		ModelAndView mav = new ModelAndView("customers/customerDetails");
+		Customer customer = this.customers.findById(customerId);
+		mav.addObject(customer);
+		return mav;
+	}
+}

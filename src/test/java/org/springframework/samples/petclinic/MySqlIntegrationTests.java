@@ -31,10 +31,14 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.samples.petclinic.vet.VetRepository;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.containers.MySQLContainer;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
+
+import java.util.Map;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("mysql")
@@ -42,10 +46,25 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @DisabledInNativeImage
 class MySqlIntegrationTests {
 
-	@ServiceConnection
+	//@ServiceConnection
 	@Container
-	static MySQLContainer<?> container = new MySQLContainer<>("mysql:8.0");
+	static MySQLContainer<?> container = new MySQLContainer<>("mysql:8.0")
+		.withDatabaseName("petclinic")
+		.withEnv(Map.of(
+			"MYSQL_ROOT_PASSWORD", "",
+			"MYSQL_ALLOW_EMPTY_PASSWORD", "true",
+			"MYSQL_USER", "petclinic",
+			"MYSQL_PASSWORD", "petclinic",
+			"MYSQL_DATABASE", "petclinic"
+		));
 
+	@DynamicPropertySource
+	static void mysqlProperties(DynamicPropertyRegistry registry) {
+		System.out.println("jdbc-url: " + container.getJdbcUrl());
+		registry.add("spring.datasource.petclinic.url", container::getJdbcUrl);
+		registry.add("spring.datasource.petclinic.password", ()->"petclinic");
+		registry.add("spring.datasource.petclinic.username", ()->"petclinic");
+	}
 	@LocalServerPort
 	int port;
 
@@ -54,6 +73,7 @@ class MySqlIntegrationTests {
 
 	@Autowired
 	private RestTemplateBuilder builder;
+
 
 	@Test
 	void testFindAll() throws Exception {

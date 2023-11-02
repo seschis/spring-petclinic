@@ -55,7 +55,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @ActiveProfiles("postgres")
 @Testcontainers(disabledWithoutDocker = true)
 @DisabledInNativeImage
-public class PostgresIntegrationTests {
+class PostgresIntegrationTests {
 
 	@ServiceConnection
 	@Container
@@ -70,21 +70,6 @@ public class PostgresIntegrationTests {
 	@Autowired
 	private RestTemplateBuilder builder;
 
-	@BeforeAll
-	static void available() {
-		assumeTrue(DockerClientFactory.instance().isDockerAvailable(), "Docker not available");
-	}
-
-	public static void main(String[] args) {
-		new SpringApplicationBuilder(PetClinicApplication.class) //
-			.profiles("postgres") //
-			.properties( //
-					"spring.docker.compose.profiles.active=postgres" //
-			) //
-			.listeners(new PropertiesLogger()) //
-			.run(args);
-	}
-
 	@Test
 	void testFindAll() throws Exception {
 		vets.findAll();
@@ -97,52 +82,4 @@ public class PostgresIntegrationTests {
 		ResponseEntity<String> result = template.exchange(RequestEntity.get("/owners/1").build(), String.class);
 		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
-
-	static class PropertiesLogger implements ApplicationListener<ApplicationPreparedEvent> {
-
-		private static final Log log = LogFactory.getLog(PropertiesLogger.class);
-
-		private ConfigurableEnvironment environment;
-
-		private boolean isFirstRun = true;
-
-		@Override
-		public void onApplicationEvent(ApplicationPreparedEvent event) {
-			if (isFirstRun) {
-				environment = event.getApplicationContext().getEnvironment();
-				printProperties();
-			}
-			isFirstRun = false;
-		}
-
-		public void printProperties() {
-			for (EnumerablePropertySource<?> source : findPropertiesPropertySources()) {
-				log.info("PropertySource: " + source.getName());
-				String[] names = source.getPropertyNames();
-				Arrays.sort(names);
-				for (String name : names) {
-					String resolved = environment.getProperty(name);
-					String value = source.getProperty(name).toString();
-					if (resolved.equals(value)) {
-						log.info(name + "=" + resolved);
-					}
-					else {
-						log.info(name + "=" + value + " OVERRIDDEN to " + resolved);
-					}
-				}
-			}
-		}
-
-		private List<EnumerablePropertySource<?>> findPropertiesPropertySources() {
-			List<EnumerablePropertySource<?>> sources = new LinkedList<>();
-			for (PropertySource<?> source : environment.getPropertySources()) {
-				if (source instanceof EnumerablePropertySource enumerable) {
-					sources.add(enumerable);
-				}
-			}
-			return sources;
-		}
-
-	}
-
 }

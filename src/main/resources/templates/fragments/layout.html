@@ -55,6 +55,11 @@
             <span>Find owners</span>
           </li>
 
+          <li th:replace="~{::menuItem ('/customers/find','customers','find customers','search','Find customers')}">
+            <span class="fa fa-search" aria-hidden="true"></span>
+            <span>Find customers</span>
+          </li>
+
           <li th:replace="~{::menuItem ('/vets.html','vets','veterinarians','th-list','Veterinarians')}">
             <span class="fa fa-th-list" aria-hidden="true"></span>
             <span>Veterinarians</span>
