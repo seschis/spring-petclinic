@@ -74,12 +74,14 @@ class PostgresIntegrationTests {
 
 	@DynamicPropertySource
 	static void postgresProperties(DynamicPropertyRegistry registry) {
-		registry.add("spring.datasource.petclinic.url", () -> "jdbc:postgresql://localhost:" + container.getFirstMappedPort() + "/petclinic");
-		registry.add("spring.datasource.petclinic.password", ()->"petclinic");
-		registry.add("spring.datasource.petclinic.username", ()->"petclinic");
-		registry.add("spring.datasource.pii.url", () -> "jdbc:postgresql://localhost:" + container.getFirstMappedPort() + "/pii");
-		registry.add("spring.datasource.pii.password", ()->"petclinic");
-		registry.add("spring.datasource.pii.username", ()->"petclinic");
+		registry.add("spring.datasource.petclinic.url",
+				() -> "jdbc:postgresql://localhost:" + container.getFirstMappedPort() + "/petclinic");
+		registry.add("spring.datasource.petclinic.password", () -> "petclinic");
+		registry.add("spring.datasource.petclinic.username", () -> "petclinic");
+		registry.add("spring.datasource.pii.url",
+				() -> "jdbc:postgresql://localhost:" + container.getFirstMappedPort() + "/pii");
+		registry.add("spring.datasource.pii.password", () -> "petclinic");
+		registry.add("spring.datasource.pii.username", () -> "petclinic");
 	}
 
 	@Test
@@ -94,4 +96,5 @@ class PostgresIntegrationTests {
 		ResponseEntity<String> result = template.exchange(RequestEntity.get("/owners/1").build(), String.class);
 		assertThat(result.getStatusCode()).isEqualTo(HttpStatus.OK);
 	}
+
 }

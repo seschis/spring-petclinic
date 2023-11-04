@@ -46,23 +46,21 @@ import java.util.Map;
 @DisabledInNativeImage
 class MySqlIntegrationTests {
 
-	//@ServiceConnection
+	// @ServiceConnection
 	@Container
-	static MySQLContainer<?> container = new MySQLContainer<>("mysql:8.0")
-		.withDatabaseName("mysql")
+	static MySQLContainer<?> container = new MySQLContainer<>("mysql:8.0").withDatabaseName("mysql")
 		.withUsername("root")
 		.withInitScript("db/mysql/user.sql")
-		.withEnv(Map.of(
-			"MYSQL_ROOT_PASSWORD", "",
-			"MYSQL_ALLOW_EMPTY_PASSWORD", "true"
-		));
+		.withEnv(Map.of("MYSQL_ROOT_PASSWORD", "", "MYSQL_ALLOW_EMPTY_PASSWORD", "true"));
 
 	@DynamicPropertySource
 	static void mysqlProperties(DynamicPropertyRegistry registry) {
-		registry.add("spring.datasource.petclinic.url", () -> "jdbc:mysql://localhost:" + container.getFirstMappedPort() + "/petclinic");
-		registry.add("spring.datasource.petclinic.password", ()->"petclinic");
-		registry.add("spring.datasource.petclinic.username", ()->"petclinic");
+		registry.add("spring.datasource.petclinic.url",
+				() -> "jdbc:mysql://localhost:" + container.getFirstMappedPort() + "/petclinic");
+		registry.add("spring.datasource.petclinic.password", () -> "petclinic");
+		registry.add("spring.datasource.petclinic.username", () -> "petclinic");
 	}
+
 	@LocalServerPort
 	int port;
 
@@ -71,7 +69,6 @@ class MySqlIntegrationTests {
 
 	@Autowired
 	private RestTemplateBuilder builder;
-
 
 	@Test
 	void testFindAll() throws Exception {

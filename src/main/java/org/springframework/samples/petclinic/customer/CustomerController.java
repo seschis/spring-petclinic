@@ -68,7 +68,7 @@ public class CustomerController {
 
 	@GetMapping("/customers")
 	public String processFindForm(@RequestParam(defaultValue = "1") int page, Customer customer, BindingResult result,
-								  Model model) {
+			Model model) {
 		// allow parameterless GET request for /customers to return all records
 		if (customer.getLastName() == null) {
 			customer.setLastName(""); // empty string signifies broadest possible search
@@ -107,7 +107,6 @@ public class CustomerController {
 		return customers.findByLastName(lastname, pageable);
 	}
 
-
 	@GetMapping("/customers/{customerId}/edit")
 	public String initUpdateCustomerForm(@PathVariable("customerId") int customerId, Model model) {
 		Customer customer = this.customers.findById(customerId);
@@ -117,7 +116,7 @@ public class CustomerController {
 
 	@PostMapping("/customers/{customerId}/edit")
 	public String processUpdateCustomerForm(@Valid Customer customer, BindingResult result,
-										 @PathVariable("customerId") int customerId) {
+			@PathVariable("customerId") int customerId) {
 		if (result.hasErrors()) {
 			return VIEWS_CUSTOMER_CREATE_OR_UPDATE_FORM;
 		}
@@ -152,4 +151,5 @@ public class CustomerController {
 		}
 		return "welcome";
 	}
+
 }

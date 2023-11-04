@@ -45,4 +45,5 @@ public class Customer extends Person {
 	public void setTelephone(String telephone) {
 		this.telephone = telephone;
 	}
+
 }

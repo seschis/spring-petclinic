@@ -19,12 +19,10 @@ import java.util.Objects;
 
 @Configuration
 @EnableTransactionManagement
-@EnableJpaRepositories(
-	basePackageClasses = {Customer.class},
-	entityManagerFactoryRef = "piiEntityManagerFactory",
-	transactionManagerRef = "piiTransactionManager"
-)
+@EnableJpaRepositories(basePackageClasses = { Customer.class }, entityManagerFactoryRef = "piiEntityManagerFactory",
+		transactionManagerRef = "piiTransactionManager")
 public class PiiDataSourceConfig {
+
 	@Bean
 	@ConfigurationProperties("spring.datasource.pii")
 	public DataSourceProperties piiDataSourceProperties() {
@@ -36,7 +34,6 @@ public class PiiDataSourceConfig {
 		return piiDataSourceProperties().initializeDataSourceBuilder().build();
 	}
 
-
 	@Bean
 	public JdbcTemplate piiJdbcTemplate(@Qualifier("piiDataSource") DataSource dataSource) {
 		return new JdbcTemplate(dataSource);
@@ -44,17 +41,14 @@ public class PiiDataSourceConfig {
 
 	@Bean
 	public LocalContainerEntityManagerFactoryBean piiEntityManagerFactory(
-		@Qualifier("piiDataSource") DataSource dataSource,
-		EntityManagerFactoryBuilder builder) {
-		return builder
-			.dataSource(dataSource)
-			.packages(Customer.class)
-			.build();
+			@Qualifier("piiDataSource") DataSource dataSource, EntityManagerFactoryBuilder builder) {
+		return builder.dataSource(dataSource).packages(Customer.class).build();
 	}
 
 	@Bean
 	public PlatformTransactionManager piiTransactionManager(
-		@Qualifier("piiEntityManagerFactory") LocalContainerEntityManagerFactoryBean piiEntityManagerFactory) {
+			@Qualifier("piiEntityManagerFactory") LocalContainerEntityManagerFactoryBean piiEntityManagerFactory) {
 		return new JpaTransactionManager(Objects.requireNonNull(piiEntityManagerFactory.getObject()));
 	}
+
 }

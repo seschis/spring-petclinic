@@ -24,11 +24,11 @@ import java.util.Objects;
 @Configuration
 @EnableTransactionManagement
 @EnableJpaRepositories(
-	basePackageClasses = {Owner.class, Vet.class, Pet.class, Visit.class, PetType.class, Specialty.class},
-	entityManagerFactoryRef = "petclinicEntityManagerFactory",
-	transactionManagerRef = "petclinicTransactionManager"
-)
+		basePackageClasses = { Owner.class, Vet.class, Pet.class, Visit.class, PetType.class, Specialty.class },
+		entityManagerFactoryRef = "petclinicEntityManagerFactory",
+		transactionManagerRef = "petclinicTransactionManager")
 public class DataSourceConfig {
+
 	@Bean
 	@Primary
 	@ConfigurationProperties("spring.datasource.petclinic")
@@ -51,10 +51,8 @@ public class DataSourceConfig {
 	@Bean
 	@Primary
 	public LocalContainerEntityManagerFactoryBean petclinicEntityManagerFactory(
-		@Qualifier("petclinicDataSource") DataSource dataSource,
-		EntityManagerFactoryBuilder builder) {
-		return builder
-			.dataSource(dataSource)
+			@Qualifier("petclinicDataSource") DataSource dataSource, EntityManagerFactoryBuilder builder) {
+		return builder.dataSource(dataSource)
 			.packages(Owner.class, Vet.class, Pet.class, Visit.class, PetType.class, Specialty.class)
 			.build();
 	}
@@ -62,7 +60,8 @@ public class DataSourceConfig {
 	@Bean
 	@Primary
 	public PlatformTransactionManager petclinicTransactionManager(
-		@Qualifier("petclinicEntityManagerFactory") LocalContainerEntityManagerFactoryBean petclinicEntityManagerFactory) {
+			@Qualifier("petclinicEntityManagerFactory") LocalContainerEntityManagerFactoryBean petclinicEntityManagerFactory) {
 		return new JpaTransactionManager(Objects.requireNonNull(petclinicEntityManagerFactory.getObject()));
 	}
+
 }

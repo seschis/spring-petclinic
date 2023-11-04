@@ -13,11 +13,9 @@ public interface CustomerRepository extends Repository<Customer, Integer> {
 	@Transactional(readOnly = true)
 	Page<Customer> findByLastName(@Param("lastName") String lastName, Pageable pageable);
 
-
 	@Query("SELECT customer FROM Customer customer WHERE customer.id =:id")
 	@Transactional(readOnly = true)
 	Customer findById(@Param("id") Integer id);
-
 
 	void save(Customer customer);
 
@@ -27,4 +25,5 @@ public interface CustomerRepository extends Repository<Customer, Integer> {
 	@Query("SELECT customer FROM Customer customer")
 	@Transactional(readOnly = true)
 	Page<Customer> findAll(Pageable pageable);
+
 }
