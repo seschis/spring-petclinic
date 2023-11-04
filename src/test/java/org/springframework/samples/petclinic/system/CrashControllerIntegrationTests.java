@@ -38,6 +38,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 
 /**
  * Integration Test for {@link CrashController}.
@@ -48,12 +49,6 @@ import org.springframework.http.ResponseEntity;
 @SpringBootTest(webEnvironment = RANDOM_PORT,
 		properties = { "server.error.include-message=ALWAYS", "management.endpoints.enabled-by-default=false" })
 class CrashControllerIntegrationTests {
-
-	@SpringBootApplication(exclude = { DataSourceAutoConfiguration.class,
-			DataSourceTransactionManagerAutoConfiguration.class, HibernateJpaAutoConfiguration.class })
-	static class TestConfiguration {
-
-	}
 
 	@Value(value = "${local.server.port}")
 	private int port;

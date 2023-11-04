@@ -45,6 +45,8 @@ import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
 import org.springframework.samples.petclinic.vet.VetRepository;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.context.DynamicPropertyRegistry;
+import org.springframework.test.context.DynamicPropertySource;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.DockerClientFactory;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -57,9 +59,11 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 @DisabledInNativeImage
 class PostgresIntegrationTests {
 
-	@ServiceConnection
 	@Container
-	static PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:15-alpine");
+	static PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:15-alpine")
+		.withUsername("petclinic")
+		.withPassword("petclinic")
+		.withDatabaseName("petclinic");
 
 	@LocalServerPort
 	int port;
@@ -69,6 +73,16 @@ class PostgresIntegrationTests {
 
 	@Autowired
 	private RestTemplateBuilder builder;
+
+	@DynamicPropertySource
+	static void postgresProperties(DynamicPropertyRegistry registry) {
+		registry.add("spring.datasource.petclinic.url", () -> "jdbc:postgresql://localhost:" + container.getFirstMappedPort() + "/petclinic");
+		registry.add("spring.datasource.petclinic.password", ()->"petclinic");
+		registry.add("spring.datasource.petclinic.username", ()->"petclinic");
+		registry.add("spring.datasource.pii.url", () -> "jdbc:postgresql://localhost:" + container.getFirstMappedPort() + "/pii");
+		registry.add("spring.datasource.pii.password", ()->"petclinic");
+		registry.add("spring.datasource.pii.username", ()->"petclinic");
+	}
 
 	@Test
 	void testFindAll() throws Exception {

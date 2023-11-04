@@ -49,19 +49,18 @@ class MySqlIntegrationTests {
 	//@ServiceConnection
 	@Container
 	static MySQLContainer<?> container = new MySQLContainer<>("mysql:8.0")
-		.withDatabaseName("petclinic")
+		.withDatabaseName("mysql")
+		.withUsername("root")
+		.withInitScript("db/mysql/user.sql")
 		.withEnv(Map.of(
 			"MYSQL_ROOT_PASSWORD", "",
-			"MYSQL_ALLOW_EMPTY_PASSWORD", "true",
-			"MYSQL_USER", "petclinic",
-			"MYSQL_PASSWORD", "petclinic",
-			"MYSQL_DATABASE", "petclinic"
+			"MYSQL_ALLOW_EMPTY_PASSWORD", "true"
 		));
 
 	@DynamicPropertySource
 	static void mysqlProperties(DynamicPropertyRegistry registry) {
 		System.out.println("jdbc-url: " + container.getJdbcUrl());
-		registry.add("spring.datasource.petclinic.url", container::getJdbcUrl);
+		registry.add("spring.datasource.petclinic.url", () -> "jdbc:mysql://localhost:" + container.getFirstMappedPort() + "/petclinic");
 		registry.add("spring.datasource.petclinic.password", ()->"petclinic");
 		registry.add("spring.datasource.petclinic.username", ()->"petclinic");
 	}
