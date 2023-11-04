@@ -15,4 +15,5 @@ files.
 doesn't require a person to have any dev tools installed as all building happens in the docker image
 - Change database initialization from default springboot directives to manually configured beans because
 springboot doesn't support automatic initialization of multiple datasources.
+- Add a fake "diagnostics" page just for some interesting demo content.
 
