@@ -59,7 +59,6 @@ class MySqlIntegrationTests {
 
 	@DynamicPropertySource
 	static void mysqlProperties(DynamicPropertyRegistry registry) {
-		System.out.println("jdbc-url: " + container.getJdbcUrl());
 		registry.add("spring.datasource.petclinic.url", () -> "jdbc:mysql://localhost:" + container.getFirstMappedPort() + "/petclinic");
 		registry.add("spring.datasource.petclinic.password", ()->"petclinic");
 		registry.add("spring.datasource.petclinic.username", ()->"petclinic");

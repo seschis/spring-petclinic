@@ -61,9 +61,7 @@ class PostgresIntegrationTests {
 
 	@Container
 	static PostgreSQLContainer<?> container = new PostgreSQLContainer<>("postgres:15-alpine")
-		.withUsername("petclinic")
-		.withPassword("petclinic")
-		.withDatabaseName("petclinic");
+		.withInitScript("db/postgres/user.sql");
 
 	@LocalServerPort
 	int port;
