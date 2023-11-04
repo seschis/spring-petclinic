@@ -1,14 +1,19 @@
 package org.springframework.samples.petclinic.system;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.init.DataSourceInitializer;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.samples.petclinic.owner.*;
@@ -62,6 +67,29 @@ public class DataSourceConfig {
 	public PlatformTransactionManager petclinicTransactionManager(
 			@Qualifier("petclinicEntityManagerFactory") LocalContainerEntityManagerFactoryBean petclinicEntityManagerFactory) {
 		return new JpaTransactionManager(Objects.requireNonNull(petclinicEntityManagerFactory.getObject()));
+	}
+
+	@Bean
+	@Primary
+	public ResourceDatabasePopulator petclinicPopulator(
+			@Value("${spring.datasource.petclinic.schema-locations}") String schema,
+			@Value("${spring.datasource.petclinic.data-locations}") String data) {
+		var r = new ResourceDatabasePopulator(new ClassPathResource(schema), new ClassPathResource(data));
+		r.setSeparator(";");
+		return r;
+	}
+
+	@Bean
+	@Primary
+	public DataSourceInitializer petclinicInitializer(
+			@Qualifier("petclinicPopulator") ResourceDatabasePopulator petclinicPopulator,
+			@Qualifier("petclinicDataSource") DataSource dataSource) {
+
+		DataSourceInitializer initializer = new DataSourceInitializer();
+		initializer.setDataSource(dataSource);
+		initializer.setDatabasePopulator(petclinicPopulator);
+
+		return initializer;
 	}
 
 }

@@ -1,13 +1,18 @@
 package org.springframework.samples.petclinic.system;
 
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.jdbc.DataSourceProperties;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.boot.orm.jpa.EntityManagerFactoryBuilder;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.datasource.init.DataSourceInitializer;
+import org.springframework.jdbc.datasource.init.ResourceDatabasePopulator;
 import org.springframework.orm.jpa.JpaTransactionManager;
 import org.springframework.orm.jpa.LocalContainerEntityManagerFactoryBean;
 import org.springframework.samples.petclinic.customer.Customer;
@@ -49,6 +54,25 @@ public class PiiDataSourceConfig {
 	public PlatformTransactionManager piiTransactionManager(
 			@Qualifier("piiEntityManagerFactory") LocalContainerEntityManagerFactoryBean piiEntityManagerFactory) {
 		return new JpaTransactionManager(Objects.requireNonNull(piiEntityManagerFactory.getObject()));
+	}
+
+	@Bean
+	public ResourceDatabasePopulator piiPopulator(@Value("${spring.datasource.pii.schema-locations}") String schema,
+			@Value("${spring.datasource.pii.data-locations}") String data) {
+		var r = new ResourceDatabasePopulator(new ClassPathResource(schema), new ClassPathResource(data));
+		r.setSeparator(";");
+		return r;
+	}
+
+	@Bean
+	public DataSourceInitializer piiInitializer(@Qualifier("piiPopulator") ResourceDatabasePopulator piiPopulator,
+			@Qualifier("piiDataSource") DataSource dataSource) {
+
+		DataSourceInitializer initializer = new DataSourceInitializer();
+		initializer.setDataSource(dataSource);
+		initializer.setDatabasePopulator(piiPopulator);
+
+		return initializer;
 	}
 
 }

@@ -1,27 +1,63 @@
 version: "3.1"
 
 services:
-  mysql:
+  db-1:
     image: mysql:8.0
+    # mapping this port just incase people want to only run the DB as a docker
+    # container and run the petclinic app manually.
     ports:
       - "3306:3306"
     environment:
       - MYSQL_ROOT_PASSWORD=
       - MYSQL_ALLOW_EMPTY_PASSWORD=true
-      - MYSQL_USER=petclinic
-      - MYSQL_PASSWORD=petclinic
-      - MYSQL_DATABASE=petclinic
+
+    # Disabling docker profile because for a demo we are only ever using the mysql db.
+#    profiles:
+#    - mysql
+
     volumes:
-      - "./conf.d:/etc/mysql/conf.d:ro"
-    profiles:
-    - mysql
-  postgres:
-    image: postgres:15.3
+    # initialize the mysql dbs and users for the petclinic app.  The petclinic app
+    # itself will handle initializing the database tables and schemas along with
+    # initial sample data population.
+    - ./src/main/resources/db/mysql/user.sql:/docker-entrypoint-initdb.d/a-init.sql
+    # needed so that 'petclinic-app' doesn't start until the DB service is ready  
+    healthcheck:
+      test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
+      timeout: 5s
+      retries: 30
+
+  petclinic-app:
+    image: local/petclinic:latest
+    container_name: petclinic-app
+    build:
+      context: ./
+      dockerfile: Dockerfile
     ports:
-      - "5432:5432"
-    environment:
-      - POSTGRES_PASSWORD=petclinic
-      - POSTGRES_USER=petclinic
-      - POSTGRES_DB=petclinic
-    profiles:
-    - postgres
+      - "8080:8080"
+    volumes:
+      - ./agent:/agent
+    command: [
+      "java", "-javaagent:/agent/contrast-agent.jar", "-jar",
+      "-Dcontrast.config.path=/agent/contrast_security.yaml",
+      "-Dagent.java.observe_tracing_sampling_limit=1000",
+      "-Dagent.java.observe_metrics_export_interval_ms=30000",
+      "-Dagent.java.observe_tracing_sampling_interval_ms=1",
+      "/petclinic.jar",
+      "--spring.profiles.active=mysql",
+      "--spring.datasource.petclinic.url=jdbc:mysql://db-1/petclinic",
+      "--spring.datasource.pii.url=jdbc:mysql://db-1/pii"
+    ]
+    depends_on:
+      db-1:
+        condition: service_healthy
+
+#  postgres:
+#    image: postgres:15.3
+#    ports:
+#      - "5432:5432"
+#    environment:
+#      - POSTGRES_PASSWORD=petclinic
+#      - POSTGRES_USER=petclinic
+#      - POSTGRES_DB=petclinic
+#    profiles:
+#    - postgres
