@@ -16,4 +16,6 @@ doesn't require a person to have any dev tools installed as all building happens
 - Change database initialization from default springboot directives to manually configured beans because
 springboot doesn't support automatic initialization of multiple datasources.
 - Add a fake "diagnostics" page just for some interesting demo content.
+- Add Basic user/password auth to `/customers/*` endpoints.
+  - The username is `user` and the password is `password`.
 
