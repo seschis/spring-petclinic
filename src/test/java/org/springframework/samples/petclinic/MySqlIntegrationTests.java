@@ -21,14 +21,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledInNativeImage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
 import org.springframework.boot.web.client.RestTemplateBuilder;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.RequestEntity;
 import org.springframework.http.ResponseEntity;
+import org.springframework.samples.petclinic.system.DataSourceConfig;
 import org.springframework.samples.petclinic.vet.VetRepository;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
@@ -42,6 +45,7 @@ import java.util.Map;
 
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("mysql")
+@Import(DataSourceConfig.class)
 @Testcontainers(disabledWithoutDocker = true)
 @DisabledInNativeImage
 class MySqlIntegrationTests {
@@ -57,8 +61,8 @@ class MySqlIntegrationTests {
 	static void mysqlProperties(DynamicPropertyRegistry registry) {
 		registry.add("spring.datasource.petclinic.url",
 				() -> "jdbc:mysql://localhost:" + container.getFirstMappedPort() + "/petclinic");
-		registry.add("spring.datasource.petclinic.password", () -> "petclinic");
-		registry.add("spring.datasource.petclinic.username", () -> "petclinic");
+		registry.add("spring.datasource.pii.url",
+			() -> "jdbc:mysql://localhost:" + container.getFirstMappedPort() + "/pii");
 	}
 
 	@LocalServerPort

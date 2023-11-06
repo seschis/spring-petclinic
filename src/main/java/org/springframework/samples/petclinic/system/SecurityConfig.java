@@ -22,21 +22,16 @@ public class SecurityConfig {
 	SecurityFilterChain web(HttpSecurity http) throws Exception {
 
 		http
+			.httpBasic(withDefaults())
 			.formLogin(withDefaults());
 
-//		http.formLogin(form -> form
-//				.loginPage("/login")
-//				.permitAll()
-//		);
-//
 		http
 			.authorizeHttpRequests(authorize -> authorize
 				.dispatcherTypeMatchers(FORWARD, ERROR).permitAll()
-				.requestMatchers("/customers/**").hasRole("USER")
+				//.requestMatchers("/customers/**").hasRole("USER")
 				.anyRequest().permitAll()
 			);
 
-//		http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll());
 		return http.build();
 	}
 

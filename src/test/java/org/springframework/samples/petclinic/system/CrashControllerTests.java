@@ -20,6 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 
 /**
  * Test class for {@link CrashController}
@@ -27,6 +28,7 @@ import org.junit.jupiter.api.Test;
  * @author Colin But
  * @author Alex Lutz
  */
+@AutoConfigureMockMvc(addFilters = false) //disable security
 // Waiting https://github.com/spring-projects/spring-boot/issues/5574 ..good
 // luck ((plain(st) UNIT test)! :)
 class CrashControllerTests {
