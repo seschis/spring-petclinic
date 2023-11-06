@@ -28,7 +28,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
  * @author Colin But
  * @author Alex Lutz
  */
-@AutoConfigureMockMvc(addFilters = false) //disable security
+@AutoConfigureMockMvc(addFilters = false) // disable security
 // Waiting https://github.com/spring-projects/spring-boot/issues/5574 ..good
 // luck ((plain(st) UNIT test)! :)
 class CrashControllerTests {

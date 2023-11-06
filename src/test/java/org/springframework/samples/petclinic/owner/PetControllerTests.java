@@ -45,7 +45,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @WebMvcTest(value = PetController.class,
 		includeFilters = @ComponentScan.Filter(value = PetTypeFormatter.class, type = FilterType.ASSIGNABLE_TYPE))
 @DisabledInNativeImage
-@AutoConfigureMockMvc(addFilters = false) //disable security
+@AutoConfigureMockMvc(addFilters = false) // disable security
 class PetControllerTests {
 
 	private static final int TEST_OWNER_ID = 1;

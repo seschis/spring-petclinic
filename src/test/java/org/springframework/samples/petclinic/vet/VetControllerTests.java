@@ -43,7 +43,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
  */
 
 @WebMvcTest(VetController.class)
-@AutoConfigureMockMvc(addFilters = false) //disable security
+@AutoConfigureMockMvc(addFilters = false) // disable security
 @DisabledInNativeImage
 class VetControllerTests {
 

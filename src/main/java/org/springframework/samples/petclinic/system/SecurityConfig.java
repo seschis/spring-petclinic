@@ -21,16 +21,13 @@ public class SecurityConfig {
 	@Bean
 	SecurityFilterChain web(HttpSecurity http) throws Exception {
 
-		http
-			.httpBasic(withDefaults())
-			.formLogin(withDefaults());
+		http.httpBasic(withDefaults()).formLogin(withDefaults());
 
-		http
-			.authorizeHttpRequests(authorize -> authorize
-				.dispatcherTypeMatchers(FORWARD, ERROR).permitAll()
-				//.requestMatchers("/customers/**").hasRole("USER")
-				.anyRequest().permitAll()
-			);
+		http.authorizeHttpRequests(authorize -> authorize.dispatcherTypeMatchers(FORWARD, ERROR)
+			.permitAll()
+			// .requestMatchers("/customers/**").hasRole("USER")
+			.anyRequest()
+			.permitAll());
 
 		return http.build();
 	}
@@ -46,4 +43,5 @@ public class SecurityConfig {
 		System.out.printf("\n\ncredentials: %s : %s\n\n\n", "user", "password");
 		return new InMemoryUserDetailsManager(userDetails);
 	}
+
 }

@@ -66,7 +66,7 @@ import org.springframework.test.web.servlet.MockMvc;
  * @author Colin But
  */
 @WebMvcTest(OwnerController.class)
-@AutoConfigureMockMvc(addFilters = false) //disable security
+@AutoConfigureMockMvc(addFilters = false) // disable security
 @DisabledInNativeImage
 class OwnerControllerTests {
 
@@ -74,10 +74,12 @@ class OwnerControllerTests {
 
 	@TestConfiguration
 	static class Conf {
+
 		@Bean
-		public SecurityFilterChain disable(HttpSecurity http) throws Exception  {
+		public SecurityFilterChain disable(HttpSecurity http) throws Exception {
 			return http.authorizeHttpRequests(authorize -> authorize.anyRequest().permitAll()).build();
 		}
+
 	}
 
 	@Autowired

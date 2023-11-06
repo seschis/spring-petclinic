@@ -62,7 +62,7 @@ class MySqlIntegrationTests {
 		registry.add("spring.datasource.petclinic.url",
 				() -> "jdbc:mysql://localhost:" + container.getFirstMappedPort() + "/petclinic");
 		registry.add("spring.datasource.pii.url",
-			() -> "jdbc:mysql://localhost:" + container.getFirstMappedPort() + "/pii");
+				() -> "jdbc:mysql://localhost:" + container.getFirstMappedPort() + "/pii");
 	}
 
 	@LocalServerPort

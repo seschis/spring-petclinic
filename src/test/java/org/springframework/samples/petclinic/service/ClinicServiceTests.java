@@ -71,7 +71,7 @@ import org.springframework.transaction.annotation.Transactional;
  * @author Dave Syer
  */
 @DataJpaTest(includeFilters = @ComponentScan.Filter(Service.class))
-//@AutoConfigureMockMvc(addFilters = false) //disable security
+// @AutoConfigureMockMvc(addFilters = false) //disable security
 // Ensure that if the mysql profile is active we connect to the real database:
 @AutoConfigureTestDatabase(replace = Replace.NONE)
 @Import(DataSourceConfig.class)
