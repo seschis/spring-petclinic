@@ -1,3 +1,4 @@
+
 # Modified Petclinic app for Demo
 
 ## Changes made to upstream code:
@@ -20,4 +21,14 @@ springboot doesn't support automatic initialization of multiple datasources.
   - The username is `user` and the password is `password`.
 - Add outbound service call to an astrology service on the welcome page
 - Add a file read action to get the welcome message for the welcome page.
+
+
+Authenticating and Authorizing:
+There are 3 different users with varying levels of permissions. 
+Unfortunately, there isn’t a logout button yet, so in order to change your user, you must restart the server and log in again.
+
+- Admin: U “admin” P “password” - this is the only role that has access to /owners endpoints
+- User: U “user” P “password” - this is the role that has access to /customers endpoints
+- No-role User: U “bob” P “password”
+
 

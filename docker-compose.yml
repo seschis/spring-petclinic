@@ -19,34 +19,44 @@ services:
     # initialize the mysql dbs and users for the petclinic app.  The petclinic app
     # itself will handle initializing the database tables and schemas along with
     # initial sample data population.
-    - ./src/main/resources/db/mysql/user.sql:/docker-entrypoint-initdb.d/a-init.sql
+    - ./WebApplication/src/main/resources/db/mysql/user.sql:/docker-entrypoint-initdb.d/a-init.sql
     # needed so that 'petclinic-app' doesn't start until the DB service is ready  
     healthcheck:
       test: [ "CMD", "mysqladmin" ,"ping", "-h", "localhost" ]
       timeout: 5s
       retries: 30
-
+  email-service:
+    environment:
+      CONTRAST__SERVER__NAME: "Petclinic"
+      CONTRAST__APPLICATION__NAME: "Email-Service"
+      CONTRAST__ASSESS__ENABLE: "true"
+      CONTRAST__PROTECT__ENABLE: "true"
+    build:
+      context: ./
+      dockerfile: EmailService/Dockerfile
+    ports:
+      - 8081:8081
+  log4shell-service:
+    container_name: Log4ShellServer
+    build:
+      context: Log4ShellServer/
+      dockerfile: Dockerfile
+    ports:
+      - 8082:8082
+      - 1389:1389
   petclinic-app:
+    environment:
+      CONTRAST__SERVER__NAME: "Petclinic"
+      CONTRAST__APPLICATION__NAME: "Web-Application"
+      CONTRAST__ASSESS__ENABLE: "true"
+      CONTRAST__PROTECT__ENABLE: "true"
     image: local/petclinic:latest
     container_name: petclinic-app
     build:
       context: ./
-      dockerfile: Dockerfile
+      dockerfile: WebApplication/Dockerfile
     ports:
       - "8080:8080"
-    volumes:
-      - ./agent:/agent
-    command: [
-      "java", "-javaagent:/agent/contrast-agent.jar", "-jar",
-      "-Dcontrast.config.path=/agent/contrast_security.yaml",
-      "-Dagent.java.observe_tracing_sampling_limit=1000",
-      "-Dagent.java.observe_metrics_export_interval_ms=30000",
-      "-Dagent.java.observe_tracing_sampling_interval_ms=1",
-      "/petclinic.jar",
-      "--spring.profiles.active=mysql",
-      "--spring.datasource.petclinic.url=jdbc:mysql://db-1/petclinic",
-      "--spring.datasource.pii.url=jdbc:mysql://db-1/pii"
-    ]
     depends_on:
       db-1:
         condition: service_healthy
