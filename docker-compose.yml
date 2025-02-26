@@ -33,7 +33,7 @@ services:
       context: ./
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8081:8081"
     volumes:
       - ./agent:/agent
     command: [
@@ -44,6 +44,7 @@ services:
       "-Dagent.java.observe_tracing_sampling_interval_ms=1",
       "/petclinic.jar",
       "--spring.profiles.active=mysql",
+      "--server.port=8081",
       "--spring.datasource.petclinic.url=jdbc:mysql://db-1/petclinic",
       "--spring.datasource.pii.url=jdbc:mysql://db-1/pii"
     ]

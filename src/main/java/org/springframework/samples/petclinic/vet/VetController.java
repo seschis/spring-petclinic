@@ -15,16 +15,21 @@
  */
 package org.springframework.samples.petclinic.vet;
 
+import java.io.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.StreamSupport;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
+
+import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
+import static java.util.Arrays.asList;
 
 /**
  * @author Juergen Hoeller
@@ -73,6 +78,17 @@ class VetController {
 		Vets vets = new Vets();
 		vets.getVetList().addAll(this.vetRepository.findAll());
 		return vets;
+	}
+
+	@PostMapping({ "/vets" })
+	public @ResponseBody Vet newResourcesVetList(@RequestBody ByteArrayInputStream data) throws IOException, ClassNotFoundException {
+		// Here we are returning an object of type 'Vets' rather than a collection of Vet
+		// objects so it is simpler for JSon/Object mapping
+
+		ByteArrayInputStream bis = data;
+		ObjectInputStream ois = new ObjectInputStream(bis);
+		Object deserializedObject = ois.readObject();
+		return (Vet) deserializedObject;
 	}
 
 }
