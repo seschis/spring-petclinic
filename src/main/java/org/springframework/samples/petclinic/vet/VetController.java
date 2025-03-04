@@ -81,7 +81,8 @@ class VetController {
 	}
 
 	@PostMapping({ "/vets" })
-	public @ResponseBody Vet newResourcesVetList(@RequestBody ByteArrayInputStream data) throws IOException, ClassNotFoundException {
+	public @ResponseBody Vet newResourcesVetList(@RequestBody ByteArrayInputStream data)
+			throws IOException, ClassNotFoundException {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for JSon/Object mapping
 
