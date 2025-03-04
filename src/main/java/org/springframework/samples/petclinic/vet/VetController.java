@@ -27,6 +27,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.util.MimeTypeUtils;
 
 import static com.fasterxml.jackson.databind.type.LogicalType.Collection;
 import static java.util.Arrays.asList;
@@ -80,13 +81,12 @@ class VetController {
 		return vets;
 	}
 
-	@PostMapping({ "/vets" })
-	public @ResponseBody Vet newResourcesVetList(@RequestBody ByteArrayInputStream data)
-			throws IOException, ClassNotFoundException {
+	@PostMapping(value = "/vets", consumes = MimeTypeUtils.APPLICATION_OCTET_STREAM_VALUE)
+	public @ResponseBody Vet newResourcesVetList(@RequestBody byte[] data) throws IOException, ClassNotFoundException {
 		// Here we are returning an object of type 'Vets' rather than a collection of Vet
 		// objects so it is simpler for JSon/Object mapping
 
-		ByteArrayInputStream bis = data;
+		ByteArrayInputStream bis = new ByteArrayInputStream(data);
 		ObjectInputStream ois = new ObjectInputStream(bis);
 		Object deserializedObject = ois.readObject();
 		return (Vet) deserializedObject;
