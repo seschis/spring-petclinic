@@ -27,7 +27,7 @@ services:
       retries: 30
 
   petclinic-app:
-    image: local/petclinic:latest
+    image: adr-demo:latest
     container_name: petclinic-app
     build:
       context: ./
